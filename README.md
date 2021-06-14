@@ -28,7 +28,7 @@ Step 2: Change the `imgshape` variable in `Train_cLapIRN.py` to match the resolu
 
 Step 3: `python Train_cLapIRN.py` to train the model. Remember the data should be normalized within [0,1]. Otherwise, set `norm=True` in the provided data loader.
 
-(Optional): Implement the custome validation code in line 368 at `Train_cLapIRN.py`. 
+(Optional): Implement the custom validation code in line 368 at `Train_cLapIRN.py`. 
 
 ## Scalability/Out of memory error
 1. You may adjust the size of the model by manipulating the argument `--start_channel` in `Train_cLapIRN.py` and `Test_cLapIRN.py`
