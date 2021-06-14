@@ -33,7 +33,7 @@ Step 3: `python Train_cLapIRN.py` to train the model. Remember the data should b
 ## Scalability/Out of memory error
 1. You may adjust the size of the model by manipulating the argument `--start_channel` in `Train_cLapIRN.py` and `Test_cLapIRN.py`
 
-2. You may adjust the number of conditional image registration module in `resblock_seq` function (at `Functions.py`). 
+2. You may modify the number of conditional image registration module in `resblock_seq` function (at `Functions.py`). 
 
 
 ## Publication
