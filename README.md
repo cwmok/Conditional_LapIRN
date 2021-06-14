@@ -2,7 +2,6 @@
 
 This is the official Pytorch implementation of "Conditional Deformable Image Registration with Convolutional Neural Network" (MICCAI 2021), written by Tony C. W. Mok and Albert C. S. Chung.
 
-<<<<<<< HEAD
 ## Prerequisites
 - `Python 3.5.2+`
 - `Pytorch 1.3.0 - 1.7.1`
@@ -50,6 +49,4 @@ Some codes in this repository are modified from [IC-Net](https://github.com/zhan
 
 ###### Keywords
 Keywords: Conditional Image registration, Controllable Regularization, Deformable Image Registration
-=======
-(Work in progress)
->>>>>>> main
+
