@@ -40,7 +40,7 @@ Step 3: `python Train_cLapIRN.py` to train the model. Remember the data should b
 If you find this repository useful, please cite:
 - **Conditional Deformable Image Registration with Convolutional Neural Network**  
 [Tony C. W. Mok](https://cwmok.github.io/ "Tony C. W. Mok"), Albert C. S. Chung  
-MICCAI 2021. [arXiv (coming soon)]
+MICCAI 2021. [arXiv:2106.12673](https://arxiv.org/abs/2106.12673)
 
 
 ## Acknowledgment
