@@ -119,9 +119,9 @@ def train_lvl1():
 
             _, _, x, y, z = F_X_Y.shape
             norm_vector = torch.zeros((1, 3, 1, 1, 1), dtype=F_X_Y.dtype, device=F_X_Y.device)
-            norm_vector[0, 0, 0, 0, 0] = z
-            norm_vector[0, 1, 0, 0, 0] = y
-            norm_vector[0, 2, 0, 0, 0] = x
+            norm_vector[0, 0, 0, 0, 0] = (z-1)
+            norm_vector[0, 1, 0, 0, 0] = (y-1)
+            norm_vector[0, 2, 0, 0, 0] = (x-1)
             loss_regulation = loss_smooth(F_X_Y * norm_vector)
 
             smo_weight = reg_code * max_smooth
@@ -224,9 +224,9 @@ def train_lvl2():
 
             _, _, x, y, z = F_X_Y.shape
             norm_vector = torch.zeros((1, 3, 1, 1, 1), dtype=F_X_Y.dtype, device=F_X_Y.device)
-            norm_vector[0, 0, 0, 0, 0] = z
-            norm_vector[0, 1, 0, 0, 0] = y
-            norm_vector[0, 2, 0, 0, 0] = x
+            norm_vector[0, 0, 0, 0, 0] = (z-1)
+            norm_vector[0, 1, 0, 0, 0] = (y-1)
+            norm_vector[0, 2, 0, 0, 0] = (x-1)
             loss_regulation = loss_smooth(F_X_Y * norm_vector)
 
             smo_weight = reg_code * max_smooth
@@ -339,9 +339,9 @@ def train_lvl3():
 
             _, _, x, y, z = F_X_Y.shape
             norm_vector = torch.zeros((1, 3, 1, 1, 1), dtype=F_X_Y.dtype, device=F_X_Y.device)
-            norm_vector[0, 0, 0, 0, 0] = z
-            norm_vector[0, 1, 0, 0, 0] = y
-            norm_vector[0, 2, 0, 0, 0] = x
+            norm_vector[0, 0, 0, 0, 0] = (z-1)
+            norm_vector[0, 1, 0, 0, 0] = (y-1)
+            norm_vector[0, 2, 0, 0, 0] = (x-1)
             loss_regulation = loss_smooth(F_X_Y * norm_vector)
 
             smo_weight = reg_code * max_smooth
