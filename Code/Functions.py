@@ -1,10 +1,9 @@
-import SimpleITK as sitk
-import numpy as np
-import torch.utils.data as Data
-import nibabel as nib
-import torch
-import glob
 import itertools
+
+import nibabel as nib
+import numpy as np
+import torch
+import torch.utils.data as Data
 
 
 def generate_grid(imgshape):
@@ -29,18 +28,26 @@ def generate_grid_unit(imgshape):
 
 def transform_unit_flow_to_flow(flow):
     x, y, z, _ = flow.shape
-    flow[:, :, :, 0] = flow[:, :, :, 0] * (z-1)
-    flow[:, :, :, 1] = flow[:, :, :, 1] * (y-1)
-    flow[:, :, :, 2] = flow[:, :, :, 2] * (x-1)
+    flow[:, :, :, 0] = flow[:, :, :, 0] * (z-1)/2
+    flow[:, :, :, 1] = flow[:, :, :, 1] * (y-1)/2
+    flow[:, :, :, 2] = flow[:, :, :, 2] * (x-1)/2
+
+    return flow
+
+
+def transform_unit_flow_to_flow_2D(flow):
+    x, y, _ = flow.shape
+    flow[:, :, :, 0] = flow[:, :, :, 0] * (y-1)/2
+    flow[:, :, :, 1] = flow[:, :, :, 1] * (x-1)/2
 
     return flow
 
 
 def transform_unit_flow_to_flow_cuda(flow):
     b, x, y, z, c = flow.shape
-    flow[:, :, :, :, 0] = flow[:, :, :, :, 0] * (z-1)
-    flow[:, :, :, :, 1] = flow[:, :, :, :, 1] * (y-1)
-    flow[:, :, :, :, 2] = flow[:, :, :, :, 2] * (x-1)
+    flow[:, :, :, :, 0] = flow[:, :, :, :, 0] * (z-1)/2
+    flow[:, :, :, :, 1] = flow[:, :, :, :, 1] * (y-1)/2
+    flow[:, :, :, :, 2] = flow[:, :, :, :, 2] * (x-1)/2
 
     return flow
 
@@ -52,6 +59,14 @@ def load_4D(name):
     X = np.reshape(X, (1,) + X.shape)
     return X
 
+def load_4D_with_header(name):
+    # X = sitk.GetArrayFromImage(sitk.ReadImage(name, sitk.sitkFloat32 ))
+    # X = np.reshape(X, (1,)+ X.shape)
+    X = nib.load(name)
+    header, affine = X.header, X.affine
+    X = X.get_fdata()
+    X = np.reshape(X, (1,) + X.shape)
+    return X, header, affine
 
 def load_5D(name):
     # X = sitk.GetArrayFromImage(sitk.ReadImage(name, sitk.sitkFloat32 ))
@@ -66,12 +81,13 @@ def imgnorm(img):
     norm_img = (img - min_v) / (max_v - min_v)
     return norm_img
 
-def save_img(I_img,savename):
-    # I2 = sitk.GetImageFromArray(I_img,isVector=False)
-    # sitk.WriteImage(I2,savename)
-    affine = np.diag([1, 1, 1, 1])
-    new_img = nib.nifti1.Nifti1Image(I_img, affine, header=None)
-    # save_path = os.path.join(output_path, file_index + "_wrapped_norm.nii")
+def save_img(I_img,savename,header=None,affine=None):
+    if header is None or affine is None:
+        affine = np.diag([1, 1, 1, 1])
+        new_img = nib.nifti1.Nifti1Image(I_img, affine, header=None)
+    else:
+        new_img = nib.nifti1.Nifti1Image(I_img, affine, header=header)
+
     nib.save(new_img, savename)
 
 
@@ -84,11 +100,15 @@ def save_img_nii(I_img,savename):
     nib.save(new_img, savename)
 
 
-def save_flow(I_img,savename):
+def save_flow(I_img,savename,header=None,affine=None):
     # I2 = sitk.GetImageFromArray(I_img,isVector=True)
     # sitk.WriteImage(I2,savename)
-    affine = np.diag([1, 1, 1, 1])
-    new_img = nib.nifti1.Nifti1Image(I_img, affine, header=None)
+    if header is None or affine is None:
+        affine = np.diag([1, 1, 1, 1])
+        new_img = nib.nifti1.Nifti1Image(I_img, affine, header=None)
+    else:
+        new_img = nib.nifti1.Nifti1Image(I_img, affine, header=header)
+
     nib.save(new_img, savename)
 
 
@@ -119,6 +139,8 @@ class Dataset_epoch(Data.Dataset):
   'Characterizes a dataset for PyTorch'
   def __init__(self, names, norm=False):
         'Initialization'
+        super(Dataset_epoch, self).__init__()
+
         self.names = names
         self.norm = norm
         self.index_pair = list(itertools.permutations(names, 2))
@@ -140,6 +162,40 @@ class Dataset_epoch(Data.Dataset):
             return torch.from_numpy(imgnorm(img_A)).float(), torch.from_numpy(imgnorm(img_B)).float()
         else:
             return torch.from_numpy(img_A).float(), torch.from_numpy(img_B).float()
+
+
+class Dataset_epoch_validation(Data.Dataset):
+  'Characterizes a dataset for PyTorch'
+  def __init__(self, imgs, labels, norm=False):
+        'Initialization'
+        super(Dataset_epoch_validation, self).__init__()
+
+        self.imgs = imgs
+        self.labels = labels
+        self.norm = norm
+        self.imgs_pair = list(itertools.permutations(imgs, 2))
+        self.labels_pair = list(itertools.permutations(labels, 2))
+
+  def __len__(self):
+        'Denotes the total number of samples'
+        return len(self.imgs_pair)
+
+  def __getitem__(self, step):
+        'Generates one sample of data'
+        # Select sample
+        img_A = load_4D(self.imgs_pair[step][0])
+        img_B = load_4D(self.imgs_pair[step][1])
+
+        label_A = load_4D(self.labels_pair[step][0])
+        label_B = load_4D(self.labels_pair[step][1])
+
+        # print(self.index_pair[step][0])
+        # print(self.index_pair[step][1])
+
+        if self.norm:
+            return torch.from_numpy(imgnorm(img_A)).float(), torch.from_numpy(imgnorm(img_B)).float(), torch.from_numpy(label_A).float(), torch.from_numpy(label_B).float()
+        else:
+            return torch.from_numpy(img_A).float(), torch.from_numpy(img_B).float(), torch.from_numpy(label_A).float(), torch.from_numpy(label_B).float()
 
 
 class Predict_dataset(Data.Dataset):
