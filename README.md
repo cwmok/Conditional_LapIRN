@@ -43,7 +43,7 @@ If you want to train on the preprocessed OASIS dataset in https://github.com/ada
 
 Note that the conditional LapIRN model in `Train_cLapIRN_lite.py` is a lightweight version, which reduced the number of feature maps in the original model. A pretrained model and its log file are available in "Model/LDR_OASIS_NCC_unit_disp_add_fea4_reg01_10_lite_stagelvl3_54000.pth" and "Log/LDR_OASIS_NCC_unit_disp_add_fea4_reg01_10_lite_.txt", respectively.
 
-## (Example) Training on the 2D images
+## (Example) Training on 2D images
 Coming soon ...
 
 ## Publication
