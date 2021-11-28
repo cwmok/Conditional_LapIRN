@@ -49,7 +49,7 @@ We demonstrate the 2D deformable image registration with 2D coronal slices extra
 2. To train a new conditional LapIRN model, `python Train_cLapIRN_2D.py` will create a conditional LapIRN model trained on all cases in the dataset.
 3. To test the model, `python Test_cLapIRN_2D.py --modelpath {{pretrained_model_path}} --fixed ../Data/image_A_2D.nii.gz --moving ../Data/image_B_2D.nii.gz` will load the assigned model and register the image "image_A_fullsize.nii.gz" and "image_B_fullsize.nii.gz".
 
-Note that the 2D images in the dataset are in resolution `(160, 192, 1)`. During training and testing, we drop the last dimension using `.squeeze(-1)`.
+Note that the 2D images in the dataset are in resolution `(160, 192, 1)`. During training and testing, we drop the last dimension using `.squeeze(-1)`. The pretrained model for 2D conditional LapIRN can be downloaded [here](https://drive.google.com/file/d/1bjls77At-cI0LlqHXfn1-jWtoUaXwAxv/view?usp=sharing).
 
 ## Publication
 If you find this repository useful, please cite:
