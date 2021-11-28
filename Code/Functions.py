@@ -37,8 +37,8 @@ def transform_unit_flow_to_flow(flow):
 
 def transform_unit_flow_to_flow_2D(flow):
     x, y, _ = flow.shape
-    flow[:, :, :, 0] = flow[:, :, :, 0] * (y-1)/2
-    flow[:, :, :, 1] = flow[:, :, :, 1] * (x-1)/2
+    flow[:, :, 0] = flow[:, :, 0] * (y-1)/2
+    flow[:, :, 1] = flow[:, :, 1] * (x-1)/2
 
     return flow
 

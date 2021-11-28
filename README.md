@@ -38,13 +38,18 @@ Step 3: `python Train_cLapIRN.py` to train the model. Remember the data should b
 ## (Example) Training on the preprocessed OASIS dataset without cropping
 If you want to train on the preprocessed OASIS dataset in https://github.com/adalca/medical-datasets/blob/master/neurite-oasis.md. We have an example showing how to train on this dataset.
 1. Download the preprocessed OASIS dataset, unzip it and put it in "Data/OASIS".
-2. To train a new conditional LapIRN model, `python Train_cLapIRN_lite.py` will create a SyMNet model trained on the all cases in the dataset.
+2. To train a new conditional LapIRN model, `python Train_cLapIRN_lite.py` will create a conditional LapIRN model trained on all cases in the dataset.
 3. To test the model, `python Test_cLapIRN_lite.py --modelpath {{pretrained_model_path}} --fixed ../Data/image_A_fullsize.nii.gz --moving ../Data/image_B_fullsize.nii.gz` will load the assigned model and register the image "image_A_fullsize.nii.gz" and "image_B_fullsize.nii.gz".
 
 Note that the conditional LapIRN model in `Train_cLapIRN_lite.py` is a lightweight version, which reduced the number of feature maps in the original model. A pretrained model and its log file are available in "Model/LDR_OASIS_NCC_unit_disp_add_fea4_reg01_10_lite_stagelvl3_54000.pth" and "Log/LDR_OASIS_NCC_unit_disp_add_fea4_reg01_10_lite_.txt", respectively.
 
 ## (Example) Training on 2D images
-Coming soon ...
+We demonstrate the 2D deformable image registration with 2D coronal slices extracted from the preprocessed OASIS dataset (available in https://github.com/adalca/medical-datasets/blob/master/neurite-oasis.md) as follows:
+1. Download the preprocessed OASIS dataset, unzip it and put it in "Data/OASIS".
+2. To train a new conditional LapIRN model, `python Train_cLapIRN_2D.py` will create a conditional LapIRN model trained on all cases in the dataset.
+3. To test the model, `python Test_cLapIRN_2D.py --modelpath {{pretrained_model_path}} --fixed ../Data/image_A_2D.nii.gz --moving ../Data/image_B_2D.nii.gz` will load the assigned model and register the image "image_A_fullsize.nii.gz" and "image_B_fullsize.nii.gz".
+
+Note that the 2D images in the dataset are in resolution `(160, 192, 1)`. During training and testing, we drop the last dimension using `.squeeze(-1)`.
 
 ## Publication
 If you find this repository useful, please cite:
