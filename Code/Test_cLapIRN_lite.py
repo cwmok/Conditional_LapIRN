@@ -12,7 +12,7 @@ from miccai2021_model_lite import Miccai2021_LDR_conditional_laplacian_unit_disp
 
 parser = ArgumentParser()
 parser.add_argument("--modelpath", type=str,
-                    dest="modelpath", default='../Model/LDR_OASIS_NCC_unit_disp_add_fea4_reg01_10_lite_stagelvl3_54000.pth',
+                    dest="modelpath", default='../Model/LDR_OASIS_NCC_unit_disp_add_fea4_reg01_10_lite_stagelvl3_60000.pth',
                     help="Trained model path")
 parser.add_argument("--savepath", type=str,
                     dest="savepath", default='../Result',
