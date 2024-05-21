@@ -3,8 +3,13 @@ from argparse import ArgumentParser
 
 import numpy as np
 import torch
+from matplotlib import pyplot as plt
+from ipywidgets import interact, IntSlider, fixed
 
-from Functions import generate_grid_unit, save_img, save_flow, transform_unit_flow_to_flow, load_4D
+import torch.nn.functional as F
+import SimpleITK as sitk
+
+from Functions import generate_grid_unit, save_img, save_flow, transform_unit_flow_to_flow, load_4D, imgnorm
 from miccai2021_model import Miccai2021_LDR_conditional_laplacian_unit_disp_add_lvl1, \
     Miccai2021_LDR_conditional_laplacian_unit_disp_add_lvl2, Miccai2021_LDR_conditional_laplacian_unit_disp_add_lvl3, \
     SpatialTransform_unit, SpatialTransformNearest_unit
@@ -62,22 +67,46 @@ def test():
 
     grid = generate_grid_unit(imgshape)
     grid = torch.from_numpy(np.reshape(grid, (1,) + grid.shape)).cuda().float()
-
-    use_cuda = True
-    device = torch.device("cuda" if use_cuda else "cpu")
-
+        
     fixed_img = load_4D(fixed_path)
     moving_img = load_4D(moving_path)
+    
+    #Added code to deal with reshape
+    if np.shape(fixed_img) == np.shape(moving_img):
+        ori_imgshape = np.shape(fixed_img[0])
+    else:
+        raise ValueError('Dimensions of fixed_img and moving_img must be the same')
+    
+    grid_full = generate_grid_unit(ori_imgshape)
+    grid_full = torch.from_numpy(np.reshape(grid_full, (1,) + grid_full.shape)).cuda().float()
+    
+    # TODO
+    # Check that axes are coherent with imgshape dims and roll axes if not. 
+    ###
+    
+    use_cuda = True
+    device = torch.device("cuda" if use_cuda else "cpu")
+    
+    # normalize image to [0, 1]
+    norm = True
+    if norm:
+        fixed_img = imgnorm(fixed_img)
+        moving_img = imgnorm(moving_img)
 
     fixed_img = torch.from_numpy(fixed_img).float().to(device).unsqueeze(dim=0)
     moving_img = torch.from_numpy(moving_img).float().to(device).unsqueeze(dim=0)
 
     with torch.no_grad():
+
         reg_code = torch.tensor([reg_input], dtype=fixed_img.dtype, device=fixed_img.device).unsqueeze(dim=0)
+        
+        moving_img_down = F.interpolate(moving_img, size=imgshape, mode='trilinear')
+        fixed_img_down = F.interpolate(fixed_img, size=imgshape, mode='trilinear')
+        
+        F_X_Y = model(moving_img_down, fixed_img_down, reg_code)
+        F_X_Y = F.interpolate(F_X_Y, size=ori_imgshape, mode='trilinear', align_corners=True)
 
-        F_X_Y = model(moving_img, fixed_img, reg_code)
-
-        X_Y = transform(moving_img, F_X_Y.permute(0, 2, 3, 4, 1), grid).data.cpu().numpy()[0, 0, :, :, :]
+        X_Y = transform(moving_img, F_X_Y.permute(0, 2, 3, 4, 1), grid_full).data.cpu().numpy()[0, 0, :, :, :]
 
         F_X_Y_cpu = F_X_Y.data.cpu().numpy()[0, :, :, :, :].transpose(1, 2, 3, 0)
         F_X_Y_cpu = transform_unit_flow_to_flow(F_X_Y_cpu)
